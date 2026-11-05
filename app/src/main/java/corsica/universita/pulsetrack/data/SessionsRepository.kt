@@ -1,56 +1,50 @@
 package corsica.universita.pulsetrack.data
 
+import corsica.universita.pulsetrack.data.local.SessionDao
+import corsica.universita.pulsetrack.data.local.SessionEntity
+import corsica.universita.pulsetrack.data.local.Settings
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 
 /**
- * Le seul endroit qui décide d'où viennent les séances : les écrans ne voient que ce repository.
- * Étape 1 : une liste en mémoire, perdue à la mort du process. L'étape 2 la remplace par Room,
- * sans changer la signature des fonctions.
+ * Le seul endroit qui décide d'où viennent les séances. Room est la source de vérité :
+ * les écrans écoutent la base, et toute écriture réémet la liste sans code de rafraîchissement.
  */
-class SessionsRepository {
+class SessionsRepository(
+    private val dao: SessionDao,
+    private val settings: Settings,
+) {
 
-    private val store: MutableStateFlow<List<Session>> = MutableStateFlow(EXAMPLES)
+    val sessions: Flow<List<Session>> = dao.all().map { list -> list.map { it.toSession() } }
 
-    /** Réémet la liste, la plus récente d'abord, à chaque écriture. */
-    val sessions: Flow<List<Session>> = store.asSorted()
+    fun session(id: String): Flow<Session?> = dao.observe(id).map { it?.toSession() }
 
-    fun session(id: String): Flow<Session?> = store.map { list -> list.find { it.id == id } }
-
-    suspend fun get(id: String): Session? = session(id).first()
+    suspend fun get(id: String): Session? = dao.get(id)?.toSession()
 
     suspend fun add(value: ValidSession) {
-        val session = value.toSession(id = UUID.randomUUID().toString())
-        store.update { it + session }
+        dao.upsert(value.toEntity(id = UUID.randomUUID().toString()))
     }
 
     suspend fun update(id: String, value: ValidSession) {
         // Une fois modifié, un exemple devient une vraie séance de l'utilisateur.
-        val session = value.toSession(id)
-        store.update { list -> list.map { if (it.id == id) session else it } }
+        dao.upsert(value.toEntity(id))
     }
 
     suspend fun delete(id: String) {
-        store.update { list -> list.filterNot { it.id == id } }
+        dao.delete(id)
     }
 
-    private fun StateFlow<List<Session>>.asSorted(): Flow<List<Session>> =
-        map { list -> list.sortedByDescending { it.dateMillis } }
-
-    private fun ValidSession.toSession(id: String) = Session(
-        id = id,
-        type = type,
-        dateMillis = dateMillis,
-        durationMin = durationMin,
-        distanceKm = distanceKm,
-        note = note,
-    )
+    /**
+     * Une seule fois dans la vie de l'app : un exemple supprimé ne doit pas revenir au lancement suivant.
+     * Les identifiants fixes rendent l'import sans danger si l'app meurt avant de poser le drapeau.
+     */
+    suspend fun importExamplesOnce() {
+        if (settings.examplesImported()) return
+        dao.upsertAll(EXAMPLES.map { it.toEntity() })
+        settings.setExamplesImported()
+    }
 
     private companion object {
         private fun millis(iso: String) = OffsetDateTime.parse(iso).toInstant().toEpochMilli()
@@ -87,3 +81,33 @@ class SessionsRepository {
         )
     }
 }
+
+internal fun SessionEntity.toSession() = Session(
+    id = id,
+    type = SessionType.fromApi(type),
+    dateMillis = dateMillis,
+    durationMin = durationMin,
+    distanceKm = distanceKm,
+    note = note,
+    isExample = isExample,
+)
+
+internal fun Session.toEntity() = SessionEntity(
+    id = id,
+    type = type.apiValue,
+    dateMillis = dateMillis,
+    durationMin = durationMin,
+    distanceKm = distanceKm,
+    note = note,
+    isExample = isExample,
+)
+
+internal fun ValidSession.toEntity(id: String) = SessionEntity(
+    id = id,
+    type = type.apiValue,
+    dateMillis = dateMillis,
+    durationMin = durationMin,
+    distanceKm = distanceKm,
+    note = note,
+    isExample = false,
+)
