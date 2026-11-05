@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PulseTrack</string>
-    <string name="welcome_tagline">Votre journal sportif, même sans réseau</string>
+
+    <string name="journal_title">Journal des séances</string>
+    <string name="journal_empty">Aucune séance pour l\'instant.</string>
+    <string name="filter_all">Toutes</string>
+    <string name="badge_example">Exemple</string>
+
+    <string name="new_session">Nouvelle séance</string>
+    <string name="edit_session">Modifier la séance</string>
+    <string name="save_session">Enregistrer la séance</string>
+    <string name="field_duration">Durée (min)</string>
+    <string name="field_distance">Distance (km)</string>
+    <string name="field_note">Note</string>
+    <string name="field_time">Heure de la séance</string>
+
+    <string name="action_edit">Modifier</string>
+    <string name="action_delete">Supprimer</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="action_next">Suivant</string>
+    <string name="action_ok">OK</string>
+    <string name="delete_confirm">Supprimer cette séance ?</string>
 </resources>
