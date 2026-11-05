@@ -1,0 +1,15 @@
+# Build
+.gradle/
+.kotlin/
+build/
+captures/
+
+# Propre à chaque machine
+local.properties
+.idea/
+*.iml
+
+# Secrets : clés de signature et configuration Firebase privée
+*.jks
+*.keystore
+keystore.properties
