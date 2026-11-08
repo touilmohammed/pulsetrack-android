@@ -61,6 +61,10 @@ fun SessionFormScreen(
     val note by viewModel.note.collectAsStateWithLifecycle()
     val errors by viewModel.errors.collectAsStateWithLifecycle()
     val saved by viewModel.saved.collectAsStateWithLifecycle()
+    val location by viewModel.location.collectAsStateWithLifecycle()
+    val locating by viewModel.locating.collectAsStateWithLifecycle()
+    val photoPath by viewModel.photoPath.collectAsStateWithLifecycle()
+    val captureMessage by viewModel.captureMessage.collectAsStateWithLifecycle()
 
     // Un état plutôt qu'un rappel : si l'écran tourne pendant l'enregistrement, la fermeture a quand même lieu.
     LaunchedEffect(saved) { if (saved) onDone() }
@@ -110,6 +114,18 @@ fun SessionFormScreen(
                 supportingText = { Text("${note.length} / $NOTE_MAX") },
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth(),
+            )
+            CaptureSection(
+                location = location,
+                locating = locating,
+                photoPath = photoPath,
+                message = captureMessage,
+                onLocate = viewModel::locate,
+                onRemoveLocation = viewModel::removeLocation,
+                newCaptureUri = viewModel::newCaptureUri,
+                onPhotoTaken = viewModel::onPhotoTaken,
+                onPhotoPicked = viewModel::onPhotoPicked,
+                onRemovePhoto = viewModel::removePhoto,
             )
             errors.forEach { Text(it, color = MaterialTheme.colorScheme.error) }
             Button(onClick = viewModel::save, modifier = Modifier.fillMaxWidth()) {

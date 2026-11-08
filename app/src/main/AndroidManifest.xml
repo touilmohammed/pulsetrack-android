@@ -4,6 +4,11 @@
     <!-- Envoyer les séances, et savoir si le réseau donne vraiment accès à Internet. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Demandées ensemble, au clic sur « Ajouter ma position » : l'utilisateur choisit la précision. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Pas de permission CAMERA : l'appareil photo du système prend la photo à notre place.
+         La déclarer obligerait au contraire à la demander avant d'ouvrir cet appareil photo. -->
 
     <application
         android:name=".PulseTrackApp"
@@ -22,5 +27,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Donne à l'appareil photo et aux apps de partage un accès temporaire à un seul fichier. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

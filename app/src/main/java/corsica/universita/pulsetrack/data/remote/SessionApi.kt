@@ -20,8 +20,12 @@ data class SessionDto(
     val durationMin: Int,
     val distanceKm: Double? = null,
     val note: String = "",
+    val location: LocationDto? = null,
     val version: Int? = null,
 )
+
+@Serializable
+data class LocationDto(val lat: Double, val lng: Double, val accuracy: Int? = null)
 
 @Serializable
 data class SessionEnvelope(val session: SessionDto)

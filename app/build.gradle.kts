@@ -14,8 +14,8 @@ android {
         applicationId = "corsica.universita.pulsetrack"
         minSdk = 26 // Android 8 : les canaux de notification existent partout
         targetSdk = 37
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // L'API de la PWA, sur la même origine que le site.
@@ -60,6 +60,8 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.datastore.preferences)
     implementation(libs.work.runtime)
+    implementation(libs.play.services.location)
+    implementation(libs.exifinterface)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.okhttp)

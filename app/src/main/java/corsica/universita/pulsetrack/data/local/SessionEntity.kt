@@ -21,6 +21,13 @@ data class SessionEntity(
     @ColumnInfo(defaultValue = "'synced'") val syncState: String = SYNC_SYNCED,
     /** Version connue du serveur, envoyée en If-Match ; nulle tant que la séance n'y est jamais arrivée. */
     val serverVersion: Int? = null,
+    // Version 3 : la position (envoyée au serveur) et le chemin de la photo (qui reste sur le téléphone).
+    val lat: Double? = null,
+    val lng: Double? = null,
+    /** Rayon de précision, en mètres. */
+    val accuracy: Int? = null,
+    /** Un chemin dans filesDir/photos : les octets ne vont jamais dans la base. */
+    val photoPath: String? = null,
 )
 
 const val SYNC_SYNCED = "synced"

@@ -13,6 +13,8 @@ data class SessionInput(
     val durationMin: String,
     val distanceKm: String,
     val note: String,
+    val location: SessionLocation? = null,
+    val photoPath: String? = null,
 )
 
 /** Les champs validés, prêts à devenir une [Session]. */
@@ -22,6 +24,8 @@ data class ValidSession(
     val durationMin: Int,
     val distanceKm: Double?,
     val note: String,
+    val location: SessionLocation? = null,
+    val photoPath: String? = null,
 )
 
 sealed interface ValidationResult {
@@ -56,6 +60,8 @@ fun validateSession(input: SessionInput): ValidationResult {
             durationMin = duration!!,
             distanceKm = distance?.let { (it * 100).roundToLong() / 100.0 },
             note = note,
+            location = input.location,
+            photoPath = input.photoPath,
         ),
     )
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Les seuls dossiers que FileProvider peut exposer, et jamais en entier : un fichier à la fois. -->
+<paths>
+    <cache-path name="camera" path="camera/" />
+    <files-path name="photos" path="photos/" />
+</paths>

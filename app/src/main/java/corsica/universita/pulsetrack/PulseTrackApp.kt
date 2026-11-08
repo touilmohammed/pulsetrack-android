@@ -4,7 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.work.WorkManager
+import corsica.universita.pulsetrack.data.LocationSource
 import corsica.universita.pulsetrack.data.NetworkMonitor
+import corsica.universita.pulsetrack.data.PhotoStore
 import corsica.universita.pulsetrack.data.SessionsRepository
 import corsica.universita.pulsetrack.data.local.PulseTrackDatabase
 import corsica.universita.pulsetrack.data.local.Settings
@@ -28,16 +30,23 @@ object AppContainer {
         private set
     lateinit var network: NetworkMonitor
         private set
+    lateinit var photos: PhotoStore
+        private set
+    lateinit var location: LocationSource
+        private set
 
     fun init(context: Context) {
         database = PulseTrackDatabase.build(context)
         settings = Settings(context)
         network = NetworkMonitor(context)
+        photos = PhotoStore(context)
+        location = LocationSource(context)
         repository = SessionsRepository(
             database = database,
             settings = settings,
             api = sessionApi(okHttp(context)),
             workManager = WorkManager.getInstance(context),
+            photos = photos,
         )
     }
 }

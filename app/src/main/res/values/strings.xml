@@ -32,4 +32,23 @@
     <string name="action_next">Suivant</string>
     <string name="action_ok">OK</string>
     <string name="delete_confirm">Supprimer cette séance ?</string>
+    <string name="action_remove">Retirer</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_not_now">Pas maintenant</string>
+    <string name="action_share">Partager</string>
+    <string name="share_title">Partager la séance</string>
+
+    <string name="capture_title">Lieu et photo (facultatif)</string>
+    <string name="add_location">Ajouter ma position</string>
+    <string name="locating">Recherche de la position…</string>
+    <string name="location_rationale_title">Pourquoi la position ?</string>
+    <string name="location_rationale">Elle sert seulement à retrouver où vous vous êtes entraîné : elle est enregistrée avec cette séance, au moment où vous touchez le bouton, jamais en arrière-plan. Vous pouvez choisir une position approximative.</string>
+    <string name="location_denied_forever">La position est désactivée pour PulseTrack. Vous pouvez l\'autoriser dans les réglages, ou enregistrer la séance sans.</string>
+    <string name="open_settings">Ouvrir les réglages</string>
+    <string name="take_photo">Prendre une photo</string>
+    <string name="pick_photo">Choisir une image</string>
+    <string name="remove_photo">Retirer la photo</string>
+    <string name="photo_description">Photo de la séance</string>
+    <string name="see_on_map">Voir sur la carte</string>
+    <string name="location_label">Position : %1$s</string>
 </resources>

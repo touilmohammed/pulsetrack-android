@@ -17,6 +17,7 @@ import corsica.universita.pulsetrack.data.local.SYNC_PENDING
 import corsica.universita.pulsetrack.data.local.SYNC_SYNCED
 import corsica.universita.pulsetrack.data.local.SessionEntity
 import corsica.universita.pulsetrack.data.local.Settings
+import corsica.universita.pulsetrack.data.remote.LocationDto
 import corsica.universita.pulsetrack.data.remote.SessionApi
 import corsica.universita.pulsetrack.data.remote.SessionDto
 import corsica.universita.pulsetrack.data.remote.SessionEnvelope
@@ -41,6 +42,7 @@ class SessionsRepository(
     private val settings: Settings,
     private val api: SessionApi,
     private val workManager: WorkManager,
+    private val photos: PhotoStore,
 ) {
     private val dao = database.sessionDao()
     private val outbox = database.outboxDao()
@@ -66,23 +68,31 @@ class SessionsRepository(
     }
 
     suspend fun update(id: String, value: ValidSession) {
+        var replacedPhoto: String? = null
         database.withTransaction {
             val existing = dao.get(id) ?: return@withTransaction
+            if (existing.photoPath != value.photoPath) replacedPhoto = existing.photoPath
             // Une fois modifié, un exemple devient une vraie séance de l'utilisateur, à envoyer.
             // serverVersion est gardée : c'est elle qui partira en If-Match.
             dao.upsert(value.toEntity(id).copy(syncState = SYNC_PENDING, serverVersion = existing.serverVersion))
             outbox.insert(newOp(id, OP_UPSERT))
         }
+        // Après la transaction : si elle avait échoué, l'ancienne photo serait encore utilisée.
+        photos.delete(replacedPhoto)
         enqueueSync()
     }
 
     suspend fun delete(id: String) {
+        var photoPath: String? = null
         database.withTransaction {
             val existing = dao.get(id) ?: return@withTransaction
+            photoPath = existing.photoPath
             dao.delete(id)
             // Un exemple jamais modifié n'a jamais quitté le téléphone : rien à supprimer sur le serveur.
             if (!existing.isExample) outbox.insert(newOp(id, OP_DELETE))
         }
+        // Le piège du cours : supprimer la séance sans sa photo laisserait le fichier pour toujours.
+        photos.delete(photoPath)
         enqueueSync()
     }
 
@@ -187,7 +197,8 @@ class SessionsRepository(
                 if (outbox.hasPendingDelete(dto.id)) continue
                 val local = dao.get(dto.id)
                 val newer = local == null || (local.syncState == SYNC_SYNCED && (local.serverVersion ?: 0) < version)
-                if (newer) dao.upsert(dto.toEntity())
+                // La photo n'existe que sur le téléphone : la version du serveur ne doit pas l'effacer.
+                if (newer) dao.upsert(dto.toEntity().copy(photoPath = local?.photoPath))
             }
         }
     }
@@ -252,6 +263,8 @@ internal fun SessionEntity.toSession() = Session(
     note = note,
     isExample = isExample,
     syncState = SyncState.fromStored(syncState),
+    location = if (lat != null && lng != null) SessionLocation(lat, lng, accuracy) else null,
+    photoPath = photoPath,
 )
 
 internal fun Session.toEntity() = SessionEntity(
@@ -263,6 +276,10 @@ internal fun Session.toEntity() = SessionEntity(
     note = note,
     isExample = isExample,
     syncState = syncState.stored,
+    lat = location?.lat,
+    lng = location?.lng,
+    accuracy = location?.accuracy,
+    photoPath = photoPath,
 )
 
 internal fun ValidSession.toEntity(id: String) = SessionEntity(
@@ -273,6 +290,10 @@ internal fun ValidSession.toEntity(id: String) = SessionEntity(
     distanceKm = distanceKm,
     note = note,
     isExample = false,
+    lat = location?.lat,
+    lng = location?.lng,
+    accuracy = location?.accuracy,
+    photoPath = photoPath,
 )
 
 internal fun SessionEntity.toDto() = SessionDto(
@@ -282,6 +303,7 @@ internal fun SessionEntity.toDto() = SessionDto(
     durationMin = durationMin,
     distanceKm = distanceKm,
     note = note,
+    location = if (lat != null && lng != null) LocationDto(lat, lng, accuracy) else null,
 )
 
 internal fun SessionDto.toEntity() = SessionEntity(
@@ -294,4 +316,7 @@ internal fun SessionDto.toEntity() = SessionEntity(
     isExample = false,
     syncState = SYNC_SYNCED,
     serverVersion = version,
+    lat = location?.lat,
+    lng = location?.lng,
+    accuracy = location?.accuracy,
 )

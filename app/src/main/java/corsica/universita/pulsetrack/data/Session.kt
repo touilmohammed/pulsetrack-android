@@ -37,4 +37,7 @@ data class Session(
     /** Exemple importé au premier lancement : jamais envoyé au serveur tant qu'il n'est pas modifié. */
     val isExample: Boolean = false,
     val syncState: SyncState = SyncState.SYNCED,
+    val location: SessionLocation? = null,
+    /** Chemin du fichier dans filesDir/photos ; la photo ne part jamais au serveur. */
+    val photoPath: String? = null,
 )

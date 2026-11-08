@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [SessionEntity::class, OutboxEntity::class], version = 2, exportSchema = true)
+@Database(entities = [SessionEntity::class, OutboxEntity::class], version = 3, exportSchema = true)
 abstract class PulseTrackDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
@@ -40,12 +40,23 @@ abstract class PulseTrackDatabase : RoomDatabase() {
             }
         }
 
+        /** v2 → v3 : la position et la photo, facultatives : des colonnes nulles, les séances restent telles quelles. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE sessions ADD COLUMN lat REAL")
+                db.execSQL("ALTER TABLE sessions ADD COLUMN lng REAL")
+                db.execSQL("ALTER TABLE sessions ADD COLUMN accuracy INTEGER")
+                db.execSQL("ALTER TABLE sessions ADD COLUMN photoPath TEXT")
+            }
+        }
+
         // Jamais de fallbackToDestructiveMigration : l'utilisateur perdrait ses séances sans message.
+        // Une base v1 passe par 1 → 2 puis 2 → 3 : chaque migration n'a qu'un pas à connaître.
         fun build(context: Context): PulseTrackDatabase =
             Room.databaseBuilder(
                 context.applicationContext,
                 PulseTrackDatabase::class.java,
                 "pulsetrack.db",
-            ).addMigrations(MIGRATION_1_2).build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
     }
 }
