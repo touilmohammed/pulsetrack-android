@@ -16,6 +16,9 @@ interface SessionDao {
     @Query("SELECT * FROM sessions WHERE id = :id")
     fun observe(id: String): Flow<SessionEntity?>
 
+    @Query("SELECT COUNT(*) FROM sessions WHERE syncState = '$SYNC_PENDING'")
+    fun pendingCount(): Flow<Int>
+
     @Query("SELECT * FROM sessions WHERE id = :id")
     suspend fun get(id: String): SessionEntity?
 
@@ -27,4 +30,10 @@ interface SessionDao {
 
     @Query("DELETE FROM sessions WHERE id = :id")
     suspend fun delete(id: String)
+
+    @Query("UPDATE sessions SET syncState = :state, serverVersion = :serverVersion WHERE id = :id")
+    suspend fun setSyncState(id: String, state: String, serverVersion: Int?)
+
+    @Query("UPDATE sessions SET syncState = :state WHERE id = :id")
+    suspend fun setSyncState(id: String, state: String)
 }

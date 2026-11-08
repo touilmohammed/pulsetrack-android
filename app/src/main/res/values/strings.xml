@@ -6,6 +6,16 @@
     <string name="journal_empty">Aucune séance pour l\'instant.</string>
     <string name="filter_all">Toutes</string>
     <string name="badge_example">Exemple</string>
+    <string name="badge_synced">Synchronisée</string>
+    <string name="badge_pending">En attente</string>
+    <string name="badge_error">Refusée</string>
+    <string name="badge_conflict">Conflit</string>
+    <string name="offline_banner">Mode hors ligne : vos séances sont enregistrées sur cet appareil.</string>
+    <string name="sync_now">Synchroniser</string>
+    <plurals name="pending_count">
+        <item quantity="one">%d séance en attente d\'envoi</item>
+        <item quantity="other">%d séances en attente d\'envoi</item>
+    </plurals>
 
     <string name="new_session">Nouvelle séance</string>
     <string name="edit_session">Modifier la séance</string>
@@ -16,6 +26,7 @@
     <string name="field_time">Heure de la séance</string>
 
     <string name="action_edit">Modifier</string>
+    <string name="action_save">Enregistrer</string>
     <string name="action_delete">Supprimer</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_next">Suivant</string>

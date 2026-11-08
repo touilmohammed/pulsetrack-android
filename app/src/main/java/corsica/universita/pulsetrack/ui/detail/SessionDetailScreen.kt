@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import corsica.universita.pulsetrack.R
+import corsica.universita.pulsetrack.ui.SyncBadge
 import corsica.universita.pulsetrack.ui.sessionMeta
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +59,7 @@ fun SessionDetailScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            SyncBadge(current)
             if (current.note.isNotEmpty()) Text(current.note)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onEdit) { Text(stringResource(R.string.action_edit)) }

@@ -14,12 +14,17 @@ android {
         applicationId = "corsica.universita.pulsetrack"
         minSdk = 26 // Android 8 : les canaux de notification existent partout
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 3
+        versionName = "0.3"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // L'API de la PWA, sur la même origine que le site.
+        buildConfigField("String", "API_BASE_URL", "\"https://pulsetrackisco.netlify.app/\"")
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -54,6 +59,16 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     implementation(libs.datastore.preferences)
+    implementation(libs.work.runtime)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.room.testing)
 }

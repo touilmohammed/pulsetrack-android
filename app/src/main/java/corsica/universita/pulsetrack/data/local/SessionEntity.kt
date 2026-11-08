@@ -1,5 +1,6 @@
 package corsica.universita.pulsetrack.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -16,4 +17,13 @@ data class SessionEntity(
     val distanceKm: Double?,
     val note: String,
     val isExample: Boolean,
+    // Version 2 : où en est l'envoi. Même valeur par défaut ici et dans MIGRATION_1_2.
+    @ColumnInfo(defaultValue = "'synced'") val syncState: String = SYNC_SYNCED,
+    /** Version connue du serveur, envoyée en If-Match ; nulle tant que la séance n'y est jamais arrivée. */
+    val serverVersion: Int? = null,
 )
+
+const val SYNC_SYNCED = "synced"
+const val SYNC_PENDING = "pending"
+const val SYNC_ERROR = "error"
+const val SYNC_CONFLICT = "conflict"

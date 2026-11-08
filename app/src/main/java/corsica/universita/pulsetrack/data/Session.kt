@@ -14,6 +14,18 @@ enum class SessionType(val apiValue: String, val label: String) {
     }
 }
 
+/** Où en est l'envoi de la séance au serveur : ce qu'affiche son badge. */
+enum class SyncState(val stored: String) {
+    SYNCED("synced"),
+    PENDING("pending"),
+    ERROR("error"),
+    CONFLICT("conflict");
+
+    companion object {
+        fun fromStored(value: String): SyncState = entries.find { it.stored == value } ?: PENDING
+    }
+}
+
 /** Une séance, telle que l'écran la connaît. */
 data class Session(
     val id: String,
@@ -24,4 +36,5 @@ data class Session(
     val note: String,
     /** Exemple importé au premier lancement : jamais envoyé au serveur tant qu'il n'est pas modifié. */
     val isExample: Boolean = false,
+    val syncState: SyncState = SyncState.SYNCED,
 )

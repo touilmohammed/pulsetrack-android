@@ -67,9 +67,11 @@ fun SessionFormScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text(stringResource(if (viewModel.isEditing) R.string.edit_session else R.string.new_session))
-            })
+            TopAppBar(
+                title = { Text(stringResource(if (viewModel.isEditing) R.string.edit_session else R.string.new_session)) },
+                // Toujours visible : sur un petit écran, le clavier cache le bouton du bas.
+                actions = { TextButton(onClick = viewModel::save) { Text(stringResource(R.string.action_save)) } },
+            )
         },
     ) { padding ->
         Column(

@@ -19,7 +19,8 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -31,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import corsica.universita.pulsetrack.R
 import corsica.universita.pulsetrack.data.Session
 import corsica.universita.pulsetrack.data.SessionType
+import corsica.universita.pulsetrack.ui.SyncBadge
 import corsica.universita.pulsetrack.ui.sessionMeta
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +73,8 @@ fun JournalScreen(
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            if (!state.online) OfflineBanner()
+            if (state.pendingCount > 0) PendingBar(state.pendingCount, state.online, onSync = viewModel::syncNow)
             TypeFilter(
                 selected = state.filter,
                 onSelect = viewModel::setFilter,
@@ -92,6 +98,35 @@ fun JournalScreen(
                 }
             }
         }
+    }
+}
+
+/** Comme le bandeau de la PWA : on peut continuer, rien n'est perdu. */
+@Composable
+private fun OfflineBanner() {
+    Surface(color = Color(0xFFFEF3C7), contentColor = Color(0xFF78350F)) {
+        Text(
+            text = stringResource(R.string.offline_banner),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        )
+    }
+}
+
+@Composable
+private fun PendingBar(count: Int, online: Boolean, onSync: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = pluralStringResource(R.plurals.pending_count, count, count),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        // Hors ligne, le bouton ne servirait à rien : l'envoi attend déjà le réseau.
+        if (online) TextButton(onClick = onSync) { Text(stringResource(R.string.sync_now)) }
     }
 }
 
@@ -131,9 +166,7 @@ private fun SessionCard(session: Session, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                if (session.isExample) {
-                    SuggestionChip(onClick = {}, enabled = false, label = { Text(stringResource(R.string.badge_example)) })
-                }
+                SyncBadge(session)
             }
             Text(
                 text = sessionMeta(session),
