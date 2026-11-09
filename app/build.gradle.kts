@@ -24,8 +24,10 @@ android {
         versionName = "0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // L'API de la PWA, sur la même origine que le site.
-        buildConfigField("String", "API_BASE_URL", "\"https://pulsetrackisco.netlify.app/\"")
+        // L'API de la PWA, sur la même origine que le site. Pour tester une branche du serveur avant de la
+        // mettre en production : ./gradlew assembleDebug -Ppulsetrack.apiBaseUrl=https://<branche>--pulsetrackisco.netlify.app/
+        val apiBaseUrl = providers.gradleProperty("pulsetrack.apiBaseUrl").orElse("https://pulsetrackisco.netlify.app/").get()
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildFeatures {
