@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -12,6 +14,11 @@ if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 }
 
+// La clé de signature release : hors du dépôt (keystore.properties et le .jks sont ignorés par Git).
+// Sans ce fichier (un autre poste, la CI), le build release reste possible mais non signé.
+val keystoreProperties = rootProject.file("keystore.properties").takeIf { it.exists() }
+    ?.let { file -> Properties().apply { file.inputStream().use(::load) } }
+
 android {
     namespace = "corsica.universita.pulsetrack"
     compileSdk = 37
@@ -20,14 +27,33 @@ android {
         applicationId = "corsica.universita.pulsetrack"
         minSdk = 26 // Android 8 : les canaux de notification existent partout
         targetSdk = 37
-        versionCode = 7
-        versionName = "0.7"
+        versionCode = 8
+        versionName = "0.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // L'API de la PWA, sur la même origine que le site. Pour tester une branche du serveur avant de la
         // mettre en production : ./gradlew assembleDebug -Ppulsetrack.apiBaseUrl=https://<branche>--pulsetrackisco.netlify.app/
         val apiBaseUrl = providers.gradleProperty("pulsetrack.apiBaseUrl").orElse("https://pulsetrackisco.netlify.app/").get()
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+    }
+
+    signingConfigs {
+        if (keystoreProperties != null) create("release") {
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
+
+    buildTypes {
+        release {
+            // R8 : retire le code inutilisé, raccourcit les noms, supprime les ressources orphelines.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.findByName("release")
+        }
     }
 
     buildFeatures {

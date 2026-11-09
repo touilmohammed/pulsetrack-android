@@ -45,6 +45,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- App Link : les liens du site s'ouvrent ici, sans menu de choix, si l'OS a vérifié
+                 /.well-known/assetlinks.json (autoVerify). Seule la page d'accueil : /api, /sessions.md… restent au site. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="pulsetrackisco.netlify.app"
+                    android:path="/" />
+            </intent-filter>
         </activity>
 
         <!-- Le suivi de course : mesure en continu, écran éteint. Démarré seulement depuis l'écran. -->

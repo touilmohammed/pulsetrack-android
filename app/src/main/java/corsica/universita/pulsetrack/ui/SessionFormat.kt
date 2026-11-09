@@ -28,11 +28,11 @@ fun locationText(location: SessionLocation): String =
 fun mapUrl(location: SessionLocation): String =
     "https://www.openstreetmap.org/?mlat=${location.lat}&mlon=${location.lng}#map=15/${location.lat}/${location.lng}"
 
-/** Le texte partagé : le résumé de la séance, puis le lien de l'app. */
+/** Le texte partagé : le résumé, puis le lien de la séance (ouvert par l'app si installée, sinon par la PWA). */
 fun shareText(session: Session): String = buildString {
     append("${session.type.label} · ${sessionMeta(session)}")
     if (session.note.isNotEmpty()) append('\n').append(session.note)
-    append("\nhttps://pulsetrackisco.netlify.app/")
+    append('\n').append(corsica.universita.pulsetrack.links.AppLinks.sessionUrl(session.id))
 }
 
 /** « 4 oct. 2026 à 09:30 · 45 min · 8,2 km », comme dans le journal de la PWA. */
