@@ -2,7 +2,7 @@
 
 Portage natif (Kotlin + Jetpack Compose) de la PWA [PulseTrack](https://github.com/touilmohammed/pulsetrack), un journal sportif hors ligne d'abord. TP du cours Android, M2 Informatique, Università di Corsica (Jour 6, 9 novembre 2026).
 
-Même API, mêmes données, même URL que la PWA : <https://pulsetrackisco.netlify.app>. Une séance créée sur le téléphone apparaît dans la PWA, et inversement. Un lien de la PWA s'ouvre dans l'app.
+Même API, même serveur, même format de données, même URL que la PWA : <https://pulsetrackisco.netlify.app>. Comme pour la PWA, chaque appareil a son propre journal sur le serveur, rangé par identifiant d'appareil (en-tête `X-Device-Id`, sans compte utilisateur) : l'app ne voit pas les séances d'un navigateur, et inversement. Un lien du site s'ouvre dans l'app.
 
 | | |
 |---|---|
@@ -272,11 +272,11 @@ Commandes pour l'émulateur projeté ; `PKG=corsica.universita.pulsetrack`.
 | ☐ | Point | Comment le montrer |
 |---|---|---|
 | ☐ | **Mode avion** : l'app s'ouvre, affiche ses données, dit ce qui manque | bandeau « Mode hors ligne », séance créée → « 1 séance en attente d'envoi » |
-| ☐ | **Retour du réseau** : l'action faite hors ligne part toute seule | mode avion coupé → le badge passe à « Synchronisée », la séance apparaît dans la PWA |
+| ☐ | **Retour du réseau** : l'action faite hors ligne part toute seule | app fermée, mode avion coupé → notification silencieuse « Séances synchronisées » ; dans l'app, le badge passe à « Synchronisée » |
 | ☐ | **Doze** : « en attente » affiché, l'envoi attend l'OS | hors ligne, une séance créée ; app en arrière-plan ; `adb shell dumpsys battery unplug` puis `adb shell dumpsys deviceidle force-idle` ; réseau rétabli : la séance **reste en attente** (en Doze, l'app n'a pas le réseau) ; `adb shell dumpsys deviceidle unforce` : elle part dans les secondes qui suivent. Une app **au premier plan** n'est pas soumise à Doze : la mettre en arrière-plan d'abord |
 | ☐ | **Mise à jour** par-dessus l'ancienne version | installer la v0.2 (première base Room), créer des séances, puis `adb install -r` de la v1.0 : migrations 1→2→3, rien n'est perdu |
 | ☐ | **Rotation, mort du process** | formulaire à moitié rempli, puis rotation ; puis `adb shell am kill $PKG` en arrière-plan et retour : le brouillon est là |
-| ☐ | **Notification, app tuée** | `adb shell am force-stop $PKG`, puis le bouton de test des rappels de la PWA (il vise aussi l'app), ou la console Firebase → Messaging ; le clic sur le rappel ouvre « Nouvelle séance » |
+| ☐ | **Notification, app tuée** rappels activés dans les Réglages de l'app ; app balayée hors des apps récentes (process tué) ; `powershell -ExecutionPolicy Bypass -File scripts\rappel-test.ps1` (envoie le rappel de test à l'identifiant de l'app) ; Play Services redémarre le process, la notification arrive, le clic ouvre « Nouvelle séance » |
 | ☐ | **Permission refusée deux fois** | position refusée deux fois → « Ouvrir les réglages » ; la séance s'enregistre sans position |
 | ☐ | **App Link** | `adb shell pm get-app-links $PKG` → `verified` ; un lien de séance touché dans Messages ouvre l'app |
 | ☐ | **Fonctionnalité native** | Suivi GPS, puis écran éteint ; parcours simulé (Extended controls → Location → Routes) ; « Arrêter » depuis la notification ; formulaire prérempli |
