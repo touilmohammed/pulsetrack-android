@@ -34,7 +34,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PulseTrack">
+        android:theme="@style/Theme.PulseTrack.Starting">
 
         <!-- singleTop : un clic sur une notification réutilise l'écran ouvert (onNewIntent). -->
         <activity

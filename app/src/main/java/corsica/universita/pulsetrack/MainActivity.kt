@@ -12,6 +12,11 @@ import corsica.universita.pulsetrack.links.AppLinks
 import corsica.universita.pulsetrack.links.LinkTarget
 import corsica.universita.pulsetrack.ui.SessionLinkRequest
 import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import corsica.universita.pulsetrack.notif.Notifications
 import corsica.universita.pulsetrack.ui.PulseTrackNavigation
 import corsica.universita.pulsetrack.ui.theme.PulseTrackTheme
@@ -24,8 +29,20 @@ class MainActivity : ComponentActivity() {
     /** Le dernier lien de séance reçu ; un nouvel objet à chaque lien, même s'il vise la même séance. */
     private var sessionLink by mutableStateOf<SessionLinkRequest?>(null)
 
+    /** Faux tant que Room n'a pas livré la première liste : le splash reste affiché jusque-là. */
+    private var journalReady = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Avant super.onCreate : le splash remplace le thème de démarrage par le thème normal.
+        val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        // Sans cette attente, on verrait un instant le journal vide (« aucune séance ») avant la liste.
+        // Lecture locale, donc quelques dizaines de ms ; plafonnée à 1 s pour ne jamais bloquer l'ouverture.
+        splash.setKeepOnScreenCondition { !journalReady }
+        lifecycleScope.launch {
+            withTimeoutOrNull(1_000) { AppContainer.repository.sessions.first() }
+            journalReady = true
+        }
         enableEdgeToEdge()
         // savedInstanceState non nul : l'Activity est recréée (rotation), le clic a déjà été traité.
         if (savedInstanceState == null) handle(intent)
