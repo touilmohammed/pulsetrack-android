@@ -8,9 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import corsica.universita.pulsetrack.data.NOTE_MAX
 import corsica.universita.pulsetrack.links.AppLinks
 import corsica.universita.pulsetrack.links.LinkTarget
 import corsica.universita.pulsetrack.ui.SessionLinkRequest
+import corsica.universita.pulsetrack.ui.SharedTextRequest
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +30,7 @@ class MainActivity : ComponentActivity() {
     private var trackingRequests by mutableIntStateOf(0)
     /** Le dernier lien de séance reçu ; un nouvel objet à chaque lien, même s'il vise la même séance. */
     private var sessionLink by mutableStateOf<SessionLinkRequest?>(null)
+    private var sharedText by mutableStateOf<SharedTextRequest?>(null)
 
     /** Faux tant que Room n'a pas livré la première liste : le splash reste affiché jusque-là. */
     private var journalReady = false
@@ -48,7 +51,7 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) handle(intent)
         setContent {
             PulseTrackTheme {
-                PulseTrackNavigation(newSessionRequests, trackingRequests, sessionLink)
+                PulseTrackNavigation(newSessionRequests, trackingRequests, sessionLink, sharedText)
             }
         }
     }
@@ -66,6 +69,10 @@ class MainActivity : ComponentActivity() {
                 AppContainer.analytics.reminderOpened()
             }
             Notifications.ACTION_OPEN_TRACKING -> trackingRequests++
+            // Reçu d'une autre app : une entrée non fiable, coupée à la taille d'une note.
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)?.trim()?.take(NOTE_MAX)
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { sharedText = SharedTextRequest(it) }
             Intent.ACTION_VIEW -> when (val target = AppLinks.parse(intent.dataString)) {
                 LinkTarget.NewSession -> newSessionRequests++
                 is LinkTarget.SessionDetail -> sessionLink = SessionLinkRequest(target.id)

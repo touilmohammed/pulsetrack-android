@@ -45,6 +45,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Cible de partage : du texte partagé depuis une autre app ouvre « Nouvelle séance », note préremplie. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
             <!-- App Link : les liens du site s'ouvrent ici, sans menu de choix, si l'OS a vérifié
                  /.well-known/assetlinks.json (autoVerify). Seule la page d'accueil : /api, /sessions.md… restent au site. -->
             <intent-filter android:autoVerify="true">

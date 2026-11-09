@@ -27,8 +27,8 @@ android {
         applicationId = "corsica.universita.pulsetrack"
         minSdk = 26 // Android 8 : les canaux de notification existent partout
         targetSdk = 37
-        versionCode = 9
-        versionName = "0.9"
+        versionCode = 10
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // L'API de la PWA, sur la même origine que le site. Pour tester une branche du serveur avant de la

@@ -26,9 +26,9 @@ data object Journal : NavKey
 @Serializable
 data class SessionDetail(val id: String) : NavKey
 
-/** [id] nul : nouvelle séance ; [run] : préremplie par une course suivie au GPS. */
+/** [id] nul : nouvelle séance ; [run] : préremplie par une course suivie au GPS ; [sharedText] : reçu d'une autre app. */
 @Serializable
-data class SessionForm(val id: String? = null, val run: TrackedRun? = null) : NavKey
+data class SessionForm(val id: String? = null, val run: TrackedRun? = null, val sharedText: String? = null) : NavKey
 
 /** Ce que le suivi GPS transmet au formulaire : une clé de navigation, donc sérialisable. */
 @Serializable
@@ -49,14 +49,22 @@ data object Settings : NavKey
 /** Un lien de séance à ouvrir. Une classe simple (pas data) : deux liens vers la même séance restent distincts. */
 class SessionLinkRequest(val id: String)
 
+/** Du texte reçu par le menu « Partager » d'une autre app. */
+class SharedTextRequest(val text: String)
+
 /**
  * [newSessionRequests] augmente à chaque clic sur un rappel : on ouvre « Nouvelle séance ».
  * [trackingRequests] augmente à chaque clic sur la notification du suivi : on ouvre le suivi.
  */
 @Composable
-fun PulseTrackNavigation(newSessionRequests: Int = 0, trackingRequests: Int = 0, sessionLink: SessionLinkRequest? = null) {
+fun PulseTrackNavigation(newSessionRequests: Int = 0, trackingRequests: Int = 0, sessionLink: SessionLinkRequest? = null, sharedText: SharedTextRequest? = null) {
     val backStack = rememberNavBackStack(Journal)
     val context = LocalContext.current
+
+    LaunchedEffect(sharedText) {
+        val text = sharedText?.text ?: return@LaunchedEffect
+        backStack.add(SessionForm(sharedText = text))
+    }
 
     // Un lien de séance : elle peut ne pas être encore sur ce téléphone (créée ailleurs, pas encore récupérée).
     // On tente une synchronisation avant de conclure qu'elle est introuvable, comme le ferait la PWA.
@@ -131,6 +139,7 @@ fun PulseTrackNavigation(newSessionRequests: Int = 0, trackingRequests: Int = 0,
                 SessionFormScreen(
                     sessionId = key.id,
                     run = key.run,
+                    sharedText = key.sharedText,
                     onDone = { backStack.removeLastOrNull() },
                 )
             }

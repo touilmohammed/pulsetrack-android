@@ -39,6 +39,7 @@ class SessionFormViewModel(
     private val locationSource: LocationSource,
     private val sessionId: String?,
     private val run: TrackedRun? = null,
+    private val sharedText: String? = null,
 ) : ViewModel() {
 
     val type = savedState.getStateFlow(KEY_TYPE, SessionType.COURSE)
@@ -80,6 +81,11 @@ class SessionFormViewModel(
             if (run.startLat != null && run.startLng != null) {
                 setLocation(SessionLocation(Math.round(run.startLat * 100_000) / 100_000.0, Math.round(run.startLng * 100_000) / 100_000.0, null))
             }
+            savedState[KEY_LOADED] = true
+        }
+        // Du texte reçu d'une autre app : il devient la note, une seule fois (le brouillon prime ensuite).
+        if (sessionId == null && sharedText != null && savedState.get<Boolean>(KEY_LOADED) != true) {
+            savedState[KEY_NOTE] = sharedText
             savedState[KEY_LOADED] = true
         }
         // Une seule fois : après une mort du process, le brouillon en cours prime sur la séance.
@@ -224,7 +230,7 @@ class SessionFormViewModel(
         const val MESSAGE_NO_LOCATION = "Position indisponible pour l'instant. Réessayez à l'extérieur, ou enregistrez sans."
         const val MESSAGE_BAD_IMAGE = "Image illisible : choisissez-en une autre."
 
-        fun factory(sessionId: String?, run: TrackedRun? = null) = viewModelFactory {
+        fun factory(sessionId: String?, run: TrackedRun? = null, sharedText: String? = null) = viewModelFactory {
             initializer {
                 SessionFormViewModel(
                     createSavedStateHandle(),
@@ -233,6 +239,7 @@ class SessionFormViewModel(
                     AppContainer.location,
                     sessionId,
                     run,
+                    sharedText,
                 )
             }
         }

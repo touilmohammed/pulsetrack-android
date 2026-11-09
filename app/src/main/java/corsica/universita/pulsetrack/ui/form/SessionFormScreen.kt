@@ -54,7 +54,8 @@ fun SessionFormScreen(
     sessionId: String?,
     onDone: () -> Unit,
     run: TrackedRun? = null,
-    viewModel: SessionFormViewModel = viewModel(factory = SessionFormViewModel.factory(sessionId, run)),
+    sharedText: String? = null,
+    viewModel: SessionFormViewModel = viewModel(factory = SessionFormViewModel.factory(sessionId, run, sharedText)),
 ) {
     val type by viewModel.type.collectAsStateWithLifecycle()
     val dateMillis by viewModel.dateMillis.collectAsStateWithLifecycle()
