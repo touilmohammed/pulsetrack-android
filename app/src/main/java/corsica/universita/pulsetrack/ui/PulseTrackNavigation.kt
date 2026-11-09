@@ -12,6 +12,7 @@ import corsica.universita.pulsetrack.ui.detail.SessionDetailScreen
 import corsica.universita.pulsetrack.ui.form.SessionFormScreen
 import corsica.universita.pulsetrack.ui.journal.JournalScreen
 import corsica.universita.pulsetrack.ui.settings.SettingsScreen
+import corsica.universita.pulsetrack.ui.tracking.TrackingScreen
 import kotlinx.serialization.Serializable
 
 // Chaque écran est une clé sérialisable : la pile survit à la rotation et à la mort du process.
@@ -21,20 +22,39 @@ data object Journal : NavKey
 @Serializable
 data class SessionDetail(val id: String) : NavKey
 
-/** [id] nul : nouvelle séance. */
+/** [id] nul : nouvelle séance ; [run] : préremplie par une course suivie au GPS. */
 @Serializable
-data class SessionForm(val id: String? = null) : NavKey
+data class SessionForm(val id: String? = null, val run: TrackedRun? = null) : NavKey
+
+/** Ce que le suivi GPS transmet au formulaire : une clé de navigation, donc sérialisable. */
+@Serializable
+data class TrackedRun(
+    val startedAtMillis: Long,
+    val durationMin: Int,
+    val distanceKm: Double,
+    val startLat: Double? = null,
+    val startLng: Double? = null,
+)
+
+@Serializable
+data object Tracking : NavKey
 
 @Serializable
 data object Settings : NavKey
 
-/** [newSessionRequests] augmente à chaque clic sur un rappel : on ouvre alors « Nouvelle séance ». */
+/**
+ * [newSessionRequests] augmente à chaque clic sur un rappel : on ouvre « Nouvelle séance ».
+ * [trackingRequests] augmente à chaque clic sur la notification du suivi : on ouvre le suivi.
+ */
 @Composable
-fun PulseTrackNavigation(newSessionRequests: Int = 0) {
+fun PulseTrackNavigation(newSessionRequests: Int = 0, trackingRequests: Int = 0) {
     val backStack = rememberNavBackStack(Journal)
 
     LaunchedEffect(newSessionRequests) {
         if (newSessionRequests > 0 && backStack.lastOrNull() != SessionForm()) backStack.add(SessionForm())
+    }
+    LaunchedEffect(trackingRequests) {
+        if (trackingRequests > 0 && backStack.lastOrNull() != Tracking) backStack.add(Tracking)
     }
 
     NavDisplay(
@@ -52,7 +72,15 @@ fun PulseTrackNavigation(newSessionRequests: Int = 0) {
                     onNewSession = { backStack.add(SessionForm()) },
                     onOpenSession = { id -> backStack.add(SessionDetail(id)) },
                     onOpenSettings = { backStack.add(Settings) },
+                    onOpenTracking = { backStack.add(Tracking) },
                 )
+            }
+            entry<Tracking> {
+                TrackingScreen(onSave = { run ->
+                    // Le suivi quitte la pile : après l'enregistrement, retour au journal.
+                    backStack.removeLastOrNull()
+                    backStack.add(SessionForm(run = TrackedRun(run.startedAtMillis, run.durationMin, run.distanceKm, run.startLat, run.startLng)))
+                })
             }
             entry<Settings> { SettingsScreen() }
             entry<SessionDetail> { key ->
@@ -65,6 +93,7 @@ fun PulseTrackNavigation(newSessionRequests: Int = 0) {
             entry<SessionForm> { key ->
                 SessionFormScreen(
                     sessionId = key.id,
+                    run = key.run,
                     onDone = { backStack.removeLastOrNull() },
                 )
             }

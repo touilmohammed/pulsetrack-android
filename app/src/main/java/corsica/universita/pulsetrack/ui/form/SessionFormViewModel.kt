@@ -17,6 +17,8 @@ import corsica.universita.pulsetrack.data.SessionType
 import corsica.universita.pulsetrack.data.SessionsRepository
 import corsica.universita.pulsetrack.data.ValidationResult
 import corsica.universita.pulsetrack.data.validateSession
+import corsica.universita.pulsetrack.tracking.RunTracker
+import corsica.universita.pulsetrack.ui.TrackedRun
 import corsica.universita.pulsetrack.ui.formatDistance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +38,7 @@ class SessionFormViewModel(
     private val photos: PhotoStore,
     private val locationSource: LocationSource,
     private val sessionId: String?,
+    private val run: TrackedRun? = null,
 ) : ViewModel() {
 
     val type = savedState.getStateFlow(KEY_TYPE, SessionType.COURSE)
@@ -68,6 +71,17 @@ class SessionFormViewModel(
     val isEditing = sessionId != null
 
     init {
+        // Une course suivie au GPS : le formulaire part de ce qu'elle a mesuré.
+        if (sessionId == null && run != null && savedState.get<Boolean>(KEY_LOADED) != true) {
+            savedState[KEY_TYPE] = SessionType.COURSE
+            savedState[KEY_DATE] = run.startedAtMillis
+            savedState[KEY_DURATION] = run.durationMin.toString()
+            savedState[KEY_DISTANCE] = if (run.distanceKm > 0) formatDistance(run.distanceKm) else ""
+            if (run.startLat != null && run.startLng != null) {
+                setLocation(SessionLocation(Math.round(run.startLat * 100_000) / 100_000.0, Math.round(run.startLng * 100_000) / 100_000.0, null))
+            }
+            savedState[KEY_LOADED] = true
+        }
         // Une seule fois : après une mort du process, le brouillon en cours prime sur la séance.
         if (sessionId != null && savedState.get<Boolean>(KEY_LOADED) != true) {
             viewModelScope.launch {
@@ -176,6 +190,7 @@ class SessionFormViewModel(
             is ValidationResult.Valid -> viewModelScope.launch {
                 _errors.value = emptyList()
                 if (sessionId == null) repository.add(result.value) else repository.update(sessionId, result.value)
+                if (run != null) RunTracker.reset() // la course est devenue une séance
                 _saved.value = true
             }
         }
@@ -204,7 +219,7 @@ class SessionFormViewModel(
         const val MESSAGE_NO_LOCATION = "Position indisponible pour l'instant. Réessayez à l'extérieur, ou enregistrez sans."
         const val MESSAGE_BAD_IMAGE = "Image illisible : choisissez-en une autre."
 
-        fun factory(sessionId: String?) = viewModelFactory {
+        fun factory(sessionId: String?, run: TrackedRun? = null) = viewModelFactory {
             initializer {
                 SessionFormViewModel(
                     createSavedStateHandle(),
@@ -212,6 +227,7 @@ class SessionFormViewModel(
                     AppContainer.photos,
                     AppContainer.location,
                     sessionId,
+                    run,
                 )
             }
         }

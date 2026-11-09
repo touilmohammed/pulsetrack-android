@@ -71,6 +71,23 @@
     <string name="notifications_rationale">Sans elles, Android ne peut pas afficher vos rappels d\'entraînement. PulseTrack ne vous notifie que pour ces rappels et, en silence, quand des séances enregistrées hors ligne sont arrivées.</string>
     <string name="notifications_denied_forever">Les notifications sont désactivées pour PulseTrack. Vous pouvez les autoriser dans les réglages ; le reste de l\'app fonctionne sans.</string>
 
+    <string name="tracking_title">Suivi GPS</string>
+    <string name="tracking_intro">Lancez le suivi au départ : PulseTrack mesure la distance et le temps, même écran éteint, téléphone dans la poche. Une notification reste affichée pendant la course. À l\'arrivée, la séance se remplit toute seule.</string>
+    <string name="tracking_start">Démarrer la course</string>
+    <string name="tracking_stop">Arrêter</string>
+    <string name="tracking_save">Enregistrer la séance</string>
+    <string name="tracking_discard">Abandonner cette course</string>
+    <string name="tracking_distance">Distance</string>
+    <string name="tracking_pace">Allure</string>
+    <string name="tracking_gps">GPS : %1$d mesures, précision %2$s</string>
+    <string name="tracking_running_hint">Vous pouvez éteindre l\'écran : la mesure continue.</string>
+    <string name="tracking_needs_precise">La position approximative (± 2 km) ne permet pas de mesurer une distance. Autorisez la position précise dans les réglages.</string>
+    <string name="tracking_denied_forever">La position est désactivée pour PulseTrack : le suivi GPS en a besoin. Vous pouvez l\'autoriser dans les réglages ; le reste de l\'app fonctionne sans.</string>
+    <string name="tracking_notification_title">Course en cours</string>
+    <string name="tracking_notification_text">%1$s km · GPS actif</string>
+    <string name="channel_tracking">Suivi de course</string>
+    <string name="channel_tracking_description">Affichée pendant une course suivie au GPS ; arrêtez le suivi depuis la notification.</string>
+
     <string name="channel_reminders">Rappels d\'entraînement</string>
     <string name="channel_reminders_description">Les jours et à l\'heure choisis dans les réglages de l\'app.</string>
     <string name="channel_sync">Synchronisation</string>

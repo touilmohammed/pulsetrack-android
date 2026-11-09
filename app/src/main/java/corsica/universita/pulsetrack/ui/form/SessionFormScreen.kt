@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import corsica.universita.pulsetrack.R
 import corsica.universita.pulsetrack.data.NOTE_MAX
 import corsica.universita.pulsetrack.data.SessionType
+import corsica.universita.pulsetrack.ui.TrackedRun
 import corsica.universita.pulsetrack.ui.formatDate
 import java.time.Instant
 import java.time.ZoneId
@@ -52,7 +53,8 @@ import java.time.ZoneOffset
 fun SessionFormScreen(
     sessionId: String?,
     onDone: () -> Unit,
-    viewModel: SessionFormViewModel = viewModel(factory = SessionFormViewModel.factory(sessionId)),
+    run: TrackedRun? = null,
+    viewModel: SessionFormViewModel = viewModel(factory = SessionFormViewModel.factory(sessionId, run)),
 ) {
     val type by viewModel.type.collectAsStateWithLifecycle()
     val dateMillis by viewModel.dateMillis.collectAsStateWithLifecycle()

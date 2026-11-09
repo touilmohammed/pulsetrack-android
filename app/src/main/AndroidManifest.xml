@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Android 13+ : demandée au clic sur « Activer les rappels », jamais au lancement. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Le suivi de course : un foreground service de type « location » (exigé depuis Android 14). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <!-- Pas de permission CAMERA : l'appareil photo du système prend la photo à notre place.
          La déclarer obligerait au contraire à la demander avant d'ouvrir cet appareil photo. -->
 
@@ -31,6 +34,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Le suivi de course : mesure en continu, écran éteint. Démarré seulement depuis l'écran. -->
+        <service
+            android:name=".tracking.TrackingService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
 
         <!-- Réveillé par l'OS quand un push FCM arrive, même app tuée. Jamais lancé par l'app. -->
         <service

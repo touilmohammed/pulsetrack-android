@@ -50,6 +50,7 @@ fun JournalScreen(
     onNewSession: () -> Unit,
     onOpenSession: (String) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenTracking: () -> Unit,
     viewModel: JournalViewModel = viewModel(factory = JournalViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -69,7 +70,10 @@ fun JournalScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.journal_title)) },
-                actions = { TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.settings_title)) } },
+                actions = {
+                    TextButton(onClick = onOpenTracking) { Text(stringResource(R.string.tracking_title)) }
+                    TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.settings_title)) }
+                },
             )
         },
         floatingActionButton = {

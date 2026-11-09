@@ -16,6 +16,7 @@ class MainActivity : ComponentActivity() {
 
     /** Nombre de clics sur un rappel à traiter : un compteur plutôt qu'un booléen, chaque clic compte. */
     private var newSessionRequests by mutableIntStateOf(0)
+    private var trackingRequests by mutableIntStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) handle(intent)
         setContent {
             PulseTrackTheme {
-                PulseTrackNavigation(newSessionRequests)
+                PulseTrackNavigation(newSessionRequests, trackingRequests)
             }
         }
     }
@@ -36,6 +37,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handle(intent: Intent?) {
-        if (intent?.action == Notifications.ACTION_NEW_SESSION) newSessionRequests++
+        when (intent?.action) {
+            Notifications.ACTION_NEW_SESSION -> newSessionRequests++
+            Notifications.ACTION_OPEN_TRACKING -> trackingRequests++
+        }
     }
 }
