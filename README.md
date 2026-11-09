@@ -273,6 +273,7 @@ Commandes pour l'émulateur projeté ; `PKG=corsica.universita.pulsetrack`.
 |---|---|---|
 | ☐ | **Mode avion** : l'app s'ouvre, affiche ses données, dit ce qui manque | bandeau « Mode hors ligne », séance créée → « 1 séance en attente d'envoi » |
 | ☐ | **Retour du réseau** : l'action faite hors ligne part toute seule | mode avion coupé → le badge passe à « Synchronisée », la séance apparaît dans la PWA |
+| ☐ | **Doze** : « en attente » affiché, l'envoi attend l'OS | hors ligne, une séance créée ; app en arrière-plan ; `adb shell dumpsys battery unplug` puis `adb shell dumpsys deviceidle force-idle` ; réseau rétabli : la séance **reste en attente** (en Doze, l'app n'a pas le réseau) ; `adb shell dumpsys deviceidle unforce` : elle part dans les secondes qui suivent. Une app **au premier plan** n'est pas soumise à Doze : la mettre en arrière-plan d'abord |
 | ☐ | **Mise à jour** par-dessus l'ancienne version | installer la v0.2 (première base Room), créer des séances, puis `adb install -r` de la v1.0 : migrations 1→2→3, rien n'est perdu |
 | ☐ | **Rotation, mort du process** | formulaire à moitié rempli, puis rotation ; puis `adb shell am kill $PKG` en arrière-plan et retour : le brouillon est là |
 | ☐ | **Notification, app tuée** | `adb shell am force-stop $PKG`, puis le bouton de test des rappels de la PWA (il vise aussi l'app), ou la console Firebase → Messaging ; le clic sur le rappel ouvre « Nouvelle séance » |
@@ -285,8 +286,11 @@ Commandes pour l'émulateur projeté ; `PKG=corsica.universita.pulsetrack`.
 Utiles pendant la démo :
 
 ```bash
+adb shell dumpsys battery unplug             # Doze n'arrive jamais sur secteur
 adb shell dumpsys deviceidle force-idle      # Doze forcé : la synchro attend, « en attente » reste affiché
+adb shell dumpsys jobscheduler | grep -A12 "pulsetrack/androidx.work"   # contraintes du travail « sync »
 adb shell dumpsys deviceidle unforce
+adb shell dumpsys battery reset
 adb shell pm verify-app-links --re-verify $PKG
 adb shell am start -a android.intent.action.VIEW -d "https://pulsetrackisco.netlify.app/#session-form"
 adb logcat -s PulseTrackGps PulseTrackFcm PulseTrackHttp
