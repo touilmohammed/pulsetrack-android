@@ -7,6 +7,8 @@
     <!-- Demandées ensemble, au clic sur « Ajouter ma position » : l'utilisateur choisit la précision. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Android 13+ : demandée au clic sur « Activer les rappels », jamais au lancement. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Pas de permission CAMERA : l'appareil photo du système prend la photo à notre place.
          La déclarer obligerait au contraire à la demander avant d'ouvrir cet appareil photo. -->
 
@@ -19,14 +21,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PulseTrack">
 
+        <!-- singleTop : un clic sur une notification réutilise l'écran ouvert (onNewIntent). -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Réveillé par l'OS quand un push FCM arrive, même app tuée. Jamais lancé par l'app. -->
+        <service
+            android:name=".notif.PulseTrackMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Canal utilisé si un message « notification » (console Firebase) arrive app fermée. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="reminders" />
 
         <!-- Donne à l'appareil photo et aux apps de partage un accès temporaire à un seul fichier. -->
         <provider

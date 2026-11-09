@@ -51,4 +51,33 @@
     <string name="photo_description">Photo de la séance</string>
     <string name="see_on_map">Voir sur la carte</string>
     <string name="location_label">Position : %1$s</string>
+
+    <string name="settings_title">Réglages</string>
+    <string name="reminders_title">Rappels d\'entraînement</string>
+    <string name="reminders_intro">Recevez une notification les jours et à l\'heure de votre choix pour ne pas oublier votre séance. Au clic sur « Activer », Android vous demandera l\'autorisation d\'afficher des notifications.</string>
+    <string name="reminders_unavailable">Rappels indisponibles dans cette version de l\'app : Firebase n\'est pas configuré (google-services.json absent).</string>
+    <string name="reminders_days">Jours</string>
+    <string name="reminders_hour">Heure</string>
+    <string name="reminders_enable">Activer les rappels</string>
+    <string name="reminders_update">Mettre à jour les rappels</string>
+    <string name="reminders_test">Envoyer un rappel de test</string>
+    <string name="reminders_disable">Désactiver les rappels</string>
+    <string name="reminders_status_on">Rappels activés : %1$s à %2$d h.</string>
+    <string name="reminders_status_off">Rappels désactivés.</string>
+    <string name="reminders_status_test">Rappel de test envoyé : il doit arriver dans quelques secondes.</string>
+    <string name="reminders_status_offline">Pas de connexion : réessayez une fois en ligne.</string>
+    <string name="reminders_status_no_days">Choisissez au moins un jour.</string>
+    <string name="notifications_rationale_title">Pourquoi les notifications ?</string>
+    <string name="notifications_rationale">Sans elles, Android ne peut pas afficher vos rappels d\'entraînement. PulseTrack ne vous notifie que pour ces rappels et, en silence, quand des séances enregistrées hors ligne sont arrivées.</string>
+    <string name="notifications_denied_forever">Les notifications sont désactivées pour PulseTrack. Vous pouvez les autoriser dans les réglages ; le reste de l\'app fonctionne sans.</string>
+
+    <string name="channel_reminders">Rappels d\'entraînement</string>
+    <string name="channel_reminders_description">Les jours et à l\'heure choisis dans les réglages de l\'app.</string>
+    <string name="channel_sync">Synchronisation</string>
+    <string name="channel_sync_description">Silencieuse : vos séances enregistrées hors ligne sont arrivées sur le serveur.</string>
+    <string name="notif_sync_title">Séances synchronisées</string>
+    <plurals name="notif_sync_text">
+        <item quantity="one">%d séance envoyée au serveur.</item>
+        <item quantity="other">%d séances envoyées au serveur.</item>
+    </plurals>
 </resources>

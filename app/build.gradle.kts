@@ -6,6 +6,12 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Les rappels FCM demandent le google-services.json du projet Firebase. Il reste hors du dépôt public :
+// sans lui, l'app se compile quand même, et les réglages expliquent que les rappels sont indisponibles.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "corsica.universita.pulsetrack"
     compileSdk = 37
@@ -14,8 +20,8 @@ android {
         applicationId = "corsica.universita.pulsetrack"
         minSdk = 26 // Android 8 : les canaux de notification existent partout
         targetSdk = 37
-        versionCode = 4
-        versionName = "0.4"
+        versionCode = 5
+        versionName = "0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // L'API de la PWA, sur la même origine que le site.
@@ -62,6 +68,9 @@ dependencies {
     implementation(libs.work.runtime)
     implementation(libs.play.services.location)
     implementation(libs.exifinterface)
+    implementation(libs.lifecycle.process)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.okhttp)

@@ -32,10 +32,10 @@ fun okHttp(context: Context): OkHttpClient =
         .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
-fun sessionApi(client: OkHttpClient): SessionApi =
+/** Un seul Retrofit : les deux interfaces partagent le client, son cache et ses connexions. */
+fun retrofit(client: OkHttpClient): Retrofit =
     Retrofit.Builder()
         .baseUrl(BuildConfig.API_BASE_URL)
         .client(client)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
-        .create(SessionApi::class.java)

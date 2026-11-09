@@ -2,9 +2,12 @@ package corsica.universita.pulsetrack.work
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import corsica.universita.pulsetrack.AppContainer
+import corsica.universita.pulsetrack.notif.Notifications
 import java.io.IOException
 
 /**
@@ -20,12 +23,17 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
             Result.retry() // serveur indisponible ou trop sollicité : délai doublé à chaque essai
         } else {
             AppContainer.repository.refresh() // le serveur est joignable : on relit sa version
+            // Prévenir seulement si l'utilisateur ne regarde pas l'app : à l'écran, le badge suffit.
+            if (report.sent > 0 && !appVisible()) Notifications.showSyncDone(applicationContext, report.sent)
             Result.success()
         }
     } catch (e: IOException) {
         Log.i(TAG, "Réseau perdu pendant l'envoi : nouvel essai plus tard", e)
         Result.retry()
     }
+
+    private fun appVisible() =
+        ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
     companion object {
         const val UNIQUE_NAME = "sync"

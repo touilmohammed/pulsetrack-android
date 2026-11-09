@@ -7,11 +7,15 @@ import androidx.work.WorkManager
 import corsica.universita.pulsetrack.data.LocationSource
 import corsica.universita.pulsetrack.data.NetworkMonitor
 import corsica.universita.pulsetrack.data.PhotoStore
+import corsica.universita.pulsetrack.data.RemindersRepository
 import corsica.universita.pulsetrack.data.SessionsRepository
 import corsica.universita.pulsetrack.data.local.PulseTrackDatabase
 import corsica.universita.pulsetrack.data.local.Settings
+import corsica.universita.pulsetrack.data.remote.PushApi
+import corsica.universita.pulsetrack.data.remote.SessionApi
 import corsica.universita.pulsetrack.data.remote.okHttp
-import corsica.universita.pulsetrack.data.remote.sessionApi
+import corsica.universita.pulsetrack.data.remote.retrofit
+import corsica.universita.pulsetrack.notif.Notifications
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -34,6 +38,8 @@ object AppContainer {
         private set
     lateinit var location: LocationSource
         private set
+    lateinit var reminders: RemindersRepository
+        private set
 
     fun init(context: Context) {
         database = PulseTrackDatabase.build(context)
@@ -41,13 +47,16 @@ object AppContainer {
         network = NetworkMonitor(context)
         photos = PhotoStore(context)
         location = LocationSource(context)
+        val retrofit = retrofit(okHttp(context))
+        val workManager = WorkManager.getInstance(context)
         repository = SessionsRepository(
             database = database,
             settings = settings,
-            api = sessionApi(okHttp(context)),
-            workManager = WorkManager.getInstance(context),
+            api = retrofit.create(SessionApi::class.java),
+            workManager = workManager,
             photos = photos,
         )
+        reminders = RemindersRepository(context, settings, retrofit.create(PushApi::class.java), workManager)
     }
 }
 
@@ -56,6 +65,8 @@ class PulseTrackApp : Application() {
     override fun onCreate() {
         super.onCreate()
         AppContainer.init(this)
+        // Avant toute notification, même celle d'un push qui réveille l'app tuée.
+        Notifications.createChannels(this)
         AppContainer.applicationScope.launch {
             val repository = AppContainer.repository
             repository.importExamplesOnce()

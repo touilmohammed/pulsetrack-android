@@ -3,10 +3,14 @@ package corsica.universita.pulsetrack.data.local
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import corsica.universita.pulsetrack.data.ReminderSettings
 import java.util.UUID
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 private val Context.settingsStore by preferencesDataStore(name = "settings")
 
@@ -31,8 +35,40 @@ class Settings(context: Context) {
         store.edit { it[KEY_EXAMPLES_IMPORTED] = true }
     }
 
+    // --- Rappels ---
+
+    val reminders: Flow<ReminderSettings> = store.data.map { prefs ->
+        val defaults = ReminderSettings()
+        ReminderSettings(
+            enabled = prefs[KEY_REMINDERS_ENABLED] ?: defaults.enabled,
+            days = prefs[KEY_REMINDER_DAYS]?.split(',')?.mapNotNull(String::toIntOrNull)?.toSet() ?: defaults.days,
+            hour = prefs[KEY_REMINDER_HOUR] ?: defaults.hour,
+        )
+    }
+
+    suspend fun remindersNow(): ReminderSettings = reminders.first()
+
+    suspend fun saveReminders(value: ReminderSettings) {
+        store.edit {
+            it[KEY_REMINDERS_ENABLED] = value.enabled
+            it[KEY_REMINDER_DAYS] = value.days.sorted().joinToString(",")
+            it[KEY_REMINDER_HOUR] = value.hour
+        }
+    }
+
+    /** Le jeton FCM : l'adresse de cet appareil pour cette app, que le serveur utilise pour écrire. */
+    suspend fun fcmToken(): String? = store.data.first()[KEY_FCM_TOKEN]
+
+    suspend fun saveFcmToken(token: String) {
+        store.edit { it[KEY_FCM_TOKEN] = token }
+    }
+
     private companion object {
         val KEY_DEVICE_ID = stringPreferencesKey("deviceId")
         val KEY_EXAMPLES_IMPORTED = booleanPreferencesKey("examplesImported")
+        val KEY_REMINDERS_ENABLED = booleanPreferencesKey("remindersEnabled")
+        val KEY_REMINDER_DAYS = stringPreferencesKey("reminderDays")
+        val KEY_REMINDER_HOUR = intPreferencesKey("reminderHour")
+        val KEY_FCM_TOKEN = stringPreferencesKey("fcmToken")
     }
 }

@@ -49,6 +49,7 @@ import corsica.universita.pulsetrack.ui.sessionMeta
 fun JournalScreen(
     onNewSession: () -> Unit,
     onOpenSession: (String) -> Unit,
+    onOpenSettings: () -> Unit,
     viewModel: JournalViewModel = viewModel(factory = JournalViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -65,7 +66,12 @@ fun JournalScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.journal_title)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.journal_title)) },
+                actions = { TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.settings_title)) } },
+            )
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = onNewSession) {
                 Text(stringResource(R.string.new_session))
