@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import corsica.universita.pulsetrack.AppContainer
 import corsica.universita.pulsetrack.R
 import corsica.universita.pulsetrack.tracking.FinishedRun
 import corsica.universita.pulsetrack.tracking.RunTracker
@@ -66,9 +67,12 @@ fun TrackingScreen(onSave: (FinishedRun) -> Unit) {
         when (permission.state) {
             PermissionState.Granted -> if (startWhenGranted) {
                 startWhenGranted = false
-                if (precise) TrackingService.start(context)
+                if (precise) TrackingService.start(context) else AppContainer.analytics.runTracked("approximate")
             }
-            PermissionState.DeniedOnce, PermissionState.DeniedForever -> startWhenGranted = false
+            PermissionState.DeniedOnce, PermissionState.DeniedForever -> {
+                if (startWhenGranted) AppContainer.analytics.runTracked("denied")
+                startWhenGranted = false
+            }
             PermissionState.NotAsked -> Unit
         }
     }

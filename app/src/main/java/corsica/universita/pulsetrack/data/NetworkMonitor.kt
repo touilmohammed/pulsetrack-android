@@ -34,6 +34,10 @@ class NetworkMonitor(context: Context) {
         awaitClose { connectivity.unregisterNetworkCallback(callback) }
     }.distinctUntilChanged()
 
+    /** L'état à l'instant : pour un paramètre d'analytics, pas pour décider d'envoyer. */
+    fun isOnlineNow(): Boolean =
+        connectivity.getNetworkCapabilities(connectivity.activeNetwork).validated()
+
     private fun NetworkCapabilities?.validated() =
         this?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
 }

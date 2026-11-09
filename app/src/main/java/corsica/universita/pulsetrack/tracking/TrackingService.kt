@@ -15,6 +15,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import corsica.universita.pulsetrack.AppContainer
 import corsica.universita.pulsetrack.notif.Notifications
 
 /**
@@ -75,7 +76,12 @@ class TrackingService : Service() {
 
     private fun stop() {
         client.removeLocationUpdates(callback)
+        val wasRunning = RunTracker.state.value.running
         RunTracker.stop()
+        // Une seule fois par course, même si « Arrêter » est touché deux fois.
+        if (wasRunning) RunTracker.state.value.finished?.let { run ->
+            AppContainer.analytics.runTracked("ok", distanceKm = run.distanceKm, durationMin = run.durationMin)
+        }
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
         Log.i(TAG, "Suivi arrêté : ${RunTracker.state.value.finished}")

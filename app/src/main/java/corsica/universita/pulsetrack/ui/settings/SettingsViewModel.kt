@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import corsica.universita.pulsetrack.AppContainer
+import corsica.universita.pulsetrack.analytics.Analytics
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import corsica.universita.pulsetrack.data.ReminderOutcome
 import corsica.universita.pulsetrack.data.RemindersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +32,16 @@ sealed interface ReminderStatus {
 class SettingsViewModel(
     private val savedState: SavedStateHandle,
     private val reminders: RemindersRepository,
+    private val analytics: Analytics,
 ) : ViewModel() {
+
+    val analyticsAvailable = analytics.available
+    val analyticsConsent: StateFlow<Boolean?> = analytics.consent
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun setAnalyticsConsent(granted: Boolean) {
+        viewModelScope.launch { analytics.setConsent(granted) }
+    }
 
     val available = reminders.available()
 
@@ -97,7 +109,7 @@ class SettingsViewModel(
         private const val KEY_HOUR = "hour"
 
         val Factory = viewModelFactory {
-            initializer { SettingsViewModel(createSavedStateHandle(), AppContainer.reminders) }
+            initializer { SettingsViewModel(createSavedStateHandle(), AppContainer.reminders, AppContainer.analytics) }
         }
     }
 }

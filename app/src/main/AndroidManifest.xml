@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Envoyer les séances, et savoir si le réseau donne vraiment accès à Internet. -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,6 +13,17 @@
     <!-- Le suivi de course : un foreground service de type « location » (exigé depuis Android 14). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- Ajoutée d'office par Firebase Analytics : pas de publicité, donc pas d'identifiant publicitaire. -->
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+    <!-- Idem pour la Privacy Sandbox (attribution publicitaire) : rien à mesurer côté pub. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
+        tools:node="remove" />
     <!-- Pas de permission CAMERA : l'appareil photo du système prend la photo à notre place.
          La déclarer obligerait au contraire à la demander avant d'ouvrir cet appareil photo. -->
 
@@ -49,6 +61,18 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <!-- Analytics : rien ne part avant le « oui » de l'utilisateur (Analytics.setConsent). -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <!-- Les écrans sont nommés à la main : le suivi automatique ne verrait que MainActivity (double comptage). -->
+        <meta-data
+            android:name="google_analytics_automatic_screen_reporting_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
 
         <!-- Canal utilisé si un message « notification » (console Firebase) arrive app fermée. -->
         <meta-data

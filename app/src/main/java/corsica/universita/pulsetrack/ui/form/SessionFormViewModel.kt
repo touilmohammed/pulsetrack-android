@@ -189,7 +189,12 @@ class SessionFormViewModel(
             is ValidationResult.Invalid -> _errors.value = result.errors
             is ValidationResult.Valid -> viewModelScope.launch {
                 _errors.value = emptyList()
-                if (sessionId == null) repository.add(result.value) else repository.update(sessionId, result.value)
+                if (sessionId == null) {
+                    repository.add(result.value)
+                    AppContainer.analytics.sessionCreated(fromRun = run != null, offline = !AppContainer.network.isOnlineNow())
+                } else {
+                    repository.update(sessionId, result.value)
+                }
                 if (run != null) RunTracker.reset() // la course est devenue une séance
                 _saved.value = true
             }

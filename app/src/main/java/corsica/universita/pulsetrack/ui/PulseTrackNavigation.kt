@@ -13,6 +13,7 @@ import corsica.universita.pulsetrack.ui.form.SessionFormScreen
 import corsica.universita.pulsetrack.ui.journal.JournalScreen
 import corsica.universita.pulsetrack.ui.settings.SettingsScreen
 import corsica.universita.pulsetrack.ui.tracking.TrackingScreen
+import corsica.universita.pulsetrack.AppContainer
 import kotlinx.serialization.Serializable
 
 // Chaque écran est une clé sérialisable : la pile survit à la rotation et à la mort du process.
@@ -53,6 +54,20 @@ fun PulseTrackNavigation(newSessionRequests: Int = 0, trackingRequests: Int = 0)
     LaunchedEffect(newSessionRequests) {
         if (newSessionRequests > 0 && backStack.lastOrNull() != SessionForm()) backStack.add(SessionForm())
     }
+    // L'écran vu, envoyé à la main : le suivi automatique ne verrait qu'une Activity.
+    val current = backStack.lastOrNull()
+    LaunchedEffect(current) {
+        val name = when (current) {
+            Journal -> "journal"
+            is SessionDetail -> "session_detail"
+            is SessionForm -> "session_form"
+            Settings -> "settings"
+            Tracking -> "tracking"
+            else -> return@LaunchedEffect
+        }
+        AppContainer.analytics.screen(name)
+    }
+
     LaunchedEffect(trackingRequests) {
         if (trackingRequests > 0 && backStack.lastOrNull() != Tracking) backStack.add(Tracking)
     }

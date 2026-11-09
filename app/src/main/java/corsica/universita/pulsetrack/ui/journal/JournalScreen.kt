@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
@@ -85,6 +87,7 @@ fun JournalScreen(
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (!state.online) OfflineBanner()
             if (state.pendingCount > 0) PendingBar(state.pendingCount, state.online, onSync = viewModel::syncNow)
+            if (state.askConsent) ConsentCard(onAnswer = viewModel::answerConsent)
             TypeFilter(
                 selected = state.filter,
                 onSelect = viewModel::setFilter,
@@ -106,6 +109,24 @@ fun JournalScreen(
                         SessionCard(session, onClick = { onOpenSession(session.id) })
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Le consentement, posé une fois, en clair : « Non » ne change rien au fonctionnement de l'app. */
+@Composable
+private fun ConsentCard(onAnswer: (Boolean) -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.consent_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.consent_text), style = MaterialTheme.typography.bodySmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { onAnswer(true) }) { Text(stringResource(R.string.consent_yes)) }
+                OutlinedButton(onClick = { onAnswer(false) }) { Text(stringResource(R.string.consent_no)) }
             }
         }
     }

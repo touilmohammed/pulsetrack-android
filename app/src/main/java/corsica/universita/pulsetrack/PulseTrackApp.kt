@@ -3,6 +3,7 @@ package corsica.universita.pulsetrack
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import corsica.universita.pulsetrack.analytics.Analytics
 import androidx.work.WorkManager
 import corsica.universita.pulsetrack.data.LocationSource
 import corsica.universita.pulsetrack.data.NetworkMonitor
@@ -40,6 +41,8 @@ object AppContainer {
         private set
     lateinit var reminders: RemindersRepository
         private set
+    lateinit var analytics: Analytics
+        private set
 
     fun init(context: Context) {
         database = PulseTrackDatabase.build(context)
@@ -57,6 +60,7 @@ object AppContainer {
             photos = photos,
         )
         reminders = RemindersRepository(context, settings, retrofit.create(PushApi::class.java), workManager)
+        analytics = Analytics(context, settings)
     }
 }
 

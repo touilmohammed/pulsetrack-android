@@ -38,7 +38,10 @@ class MainActivity : ComponentActivity() {
 
     private fun handle(intent: Intent?) {
         when (intent?.action) {
-            Notifications.ACTION_NEW_SESSION -> newSessionRequests++
+            Notifications.ACTION_NEW_SESSION -> {
+                newSessionRequests++
+                AppContainer.analytics.reminderOpened()
+            }
             Notifications.ACTION_OPEN_TRACKING -> trackingRequests++
         }
     }

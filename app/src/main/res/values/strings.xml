@@ -71,6 +71,12 @@
     <string name="notifications_rationale">Sans elles, Android ne peut pas afficher vos rappels d\'entraînement. PulseTrack ne vous notifie que pour ces rappels et, en silence, quand des séances enregistrées hors ligne sont arrivées.</string>
     <string name="notifications_denied_forever">Les notifications sont désactivées pour PulseTrack. Vous pouvez les autoriser dans les réglages ; le reste de l\'app fonctionne sans.</string>
 
+    <string name="consent_title">Mesure d\'audience</string>
+    <string name="consent_text">Pour améliorer PulseTrack, acceptez-vous l\'envoi de statistiques d\'usage anonymes (écrans ouverts, séances créées, suivis GPS) ? Ni vos notes, ni vos positions, ni votre identité ne sont envoyées. Sans votre accord, rien ne part et l\'app fonctionne pareil.</string>
+    <string name="consent_yes">Oui</string>
+    <string name="consent_no">Non</string>
+    <string name="consent_setting">Statistiques d\'usage anonymes (Firebase Analytics). Ni notes, ni positions, ni identité.</string>
+
     <string name="tracking_title">Suivi GPS</string>
     <string name="tracking_intro">Lancez le suivi au départ : PulseTrack mesure la distance et le temps, même écran éteint, téléphone dans la poche. Une notification reste affichée pendant la course. À l\'arrivée, la séance se remplit toute seule.</string>
     <string name="tracking_start">Démarrer la course</string>

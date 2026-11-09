@@ -56,6 +56,14 @@ class Settings(context: Context) {
         }
     }
 
+    // --- Mesure d'audience : null tant que l'utilisateur n'a pas répondu ---
+
+    val analyticsConsent: Flow<Boolean?> = store.data.map { it[KEY_ANALYTICS_CONSENT] }
+
+    suspend fun saveAnalyticsConsent(granted: Boolean) {
+        store.edit { it[KEY_ANALYTICS_CONSENT] = granted }
+    }
+
     /** Le jeton FCM : l'adresse de cet appareil pour cette app, que le serveur utilise pour écrire. */
     suspend fun fcmToken(): String? = store.data.first()[KEY_FCM_TOKEN]
 
@@ -70,5 +78,6 @@ class Settings(context: Context) {
         val KEY_REMINDER_DAYS = stringPreferencesKey("reminderDays")
         val KEY_REMINDER_HOUR = intPreferencesKey("reminderHour")
         val KEY_FCM_TOKEN = stringPreferencesKey("fcmToken")
+        val KEY_ANALYTICS_CONSENT = booleanPreferencesKey("analyticsConsent")
     }
 }

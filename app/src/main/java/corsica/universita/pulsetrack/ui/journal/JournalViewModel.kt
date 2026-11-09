@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import corsica.universita.pulsetrack.AppContainer
+import corsica.universita.pulsetrack.analytics.Analytics
+import kotlinx.coroutines.launch
 import corsica.universita.pulsetrack.data.Session
 import corsica.universita.pulsetrack.data.SessionType
 import corsica.universita.pulsetrack.data.SessionsRepository
@@ -21,25 +23,33 @@ data class JournalState(
     val sessions: List<Session> = emptyList(),
     val pendingCount: Int = 0,
     val online: Boolean = true,
+    /** Afficher la question du consentement : Firebase présent et jamais répondu. */
+    val askConsent: Boolean = false,
 )
 
 class JournalViewModel(
     private val savedState: SavedStateHandle,
     private val repository: SessionsRepository,
     online: Flow<Boolean>,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val filter = savedState.getStateFlow<SessionType?>(KEY_FILTER, null)
 
     val state: StateFlow<JournalState> =
-        combine(repository.sessions, filter, repository.pendingCount, online) { sessions, type, pending, isOnline ->
+        combine(repository.sessions, filter, repository.pendingCount, online, analytics.consent) { sessions, type, pending, isOnline, consent ->
             JournalState(
                 filter = type,
                 sessions = if (type == null) sessions else sessions.filter { it.type == type },
                 pendingCount = pending,
                 online = isOnline,
+                askConsent = analytics.available && consent == null,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), JournalState())
+
+    fun answerConsent(granted: Boolean) {
+        viewModelScope.launch { analytics.setConsent(granted) }
+    }
 
     fun setFilter(type: SessionType?) {
         savedState[KEY_FILTER] = type
@@ -53,7 +63,7 @@ class JournalViewModel(
 
         val Factory = viewModelFactory {
             initializer {
-                JournalViewModel(createSavedStateHandle(), AppContainer.repository, AppContainer.network.isOnline)
+                JournalViewModel(createSavedStateHandle(), AppContainer.repository, AppContainer.network.isOnline, AppContainer.analytics)
             }
         }
     }
