@@ -10,6 +10,10 @@ Même API, même serveur, même format de données, même URL que la PWA : <http
 | Version | 1.0 (versionCode 10) |
 | Android | 8.0 (API 26) à 17 (API 37) |
 | Fonctionnalité native | suivi de course GPS, écran éteint, en foreground service |
+| **APK (release signée)** | [pulsetrack-1.0.apk](https://github.com/touilmohammed/pulsetrack-android/releases/download/v1.0/pulsetrack-1.0.apk) · [page de la Release v1.0](https://github.com/touilmohammed/pulsetrack-android/releases/tag/v1.0) |
+| PWA d'origine | <https://github.com/touilmohammed/pulsetrack> · <https://pulsetrackisco.netlify.app> |
+
+**Installer l'APK sur un téléphone :** télécharger le fichier depuis le téléphone, l'ouvrir, accepter « Installer des applications inconnues » pour le navigateur. Si une version debug est déjà installée, la désinstaller d'abord : elle est signée par une autre clé.
 
 ---
 
